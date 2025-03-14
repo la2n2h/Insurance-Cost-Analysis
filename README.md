@@ -22,7 +22,7 @@ from sklearn.model_selection import cross_val_score, train_test_split
 
 ### Download Dataset
 ```
-df = pd.read_csv('D:/Data anlysis- working sheet/python/data/kc_house_data.csv](https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DA0101EN-Coursera/medical_insurance_dataset.csv')
+df = pd.read_csv('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DA0101EN-Coursera/medical_insurance_dataset.csv')
 ```
 
 ### Save raw data into computer
@@ -41,7 +41,12 @@ The raw data have no column titles yet.
 
 ```
 # insert column titles
-df.columns = ['Age', 'Gender', 'BMI', 'No_of_children', 'Smoker', 'Region', 'Charges']
+expected_columns = ['Age', 'Gender', 'BMI', 'No_of_children', 'Smoker', 'Region', 'Charges']
+if df.shape[1] == len(expected_columns):
+    df.columns = expected_columns
+else:
+    print(" Warning: Number of columns does not match, check data!")
+
 ```
 ```
 # check size of data
@@ -143,7 +148,7 @@ Percentiles:
 75%: $16,516
 Max: $63,770 (Very high, potential outliers)
 
-### Normalization & Standardization the data
+### Normalization, Standardization and bin the data
 Age – Values range from 18 to 64, normalization reduces the impact of large differences.
 
 BMI – Values range widely (15.96 → 53.13), so scaling helps balance feature importance.
@@ -151,11 +156,33 @@ BMI – Values range widely (15.96 → 53.13), so scaling helps balance feature 
 Charges – Large range of medical costs ($1,121 → $63,770), making normalization essential.
 
 ```
-from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler()
-df[['Age', 'BMI', 'Charges']] = scaler.fit_transform(df[['Age', 'BMI', 'Charges']])
+df['Age_nor'] = df['Age']/ df['Age'].max()
+df['BMI_nor'] = df['BMI']/ df['BMI'].max()
+df['Charges_nor'] = df['Charges']/ df['Charges'].max()
+```
+```
+Age_bins =np.linspace(min(df['Age']), max(df['Age']),4)
+Age_labels = ['Young', ' Middle-age', 'Senior']
+df['Age_group'] = pd.cut(df['Age'], bins = Age_bins, labels=Age_labels, include_lowest = True)
+BMI_bins =np.linspace(min(df['BMI']), max(df['BMI']),5)
+BMI_labels = ['Underweight', 'Normal', 'Overweight', 'Obese']
+df['BMI_group'] = pd.cut(df['BMI'], bins = BMI_bins, labels=BMI_labels, include_lowest = True)
+Charges_bins =np.linspace(min(df['Charges']), max(df['Charges']),4)
+Charges_labels = ['Low-cost', 'Medium-cost', 'High-cost']
+df['Charges_group'] = pd.cut(df['Charges'], bins = Charges_bins, labels=Charges_labels, include_lowest = True)
 ```
 
+```
+print('Age_bins:', Age_bins)
+print('BMI_bins:', BMI_bins)
+print('Charges_bins:', Charges_bins)
+df.head()
+```
+![image](https://github.com/user-attachments/assets/c824077a-9eef-40e9-bc64-2f6d3a362867)
 
+### save data for analysis and visualization
+```
+df.to_csv('D:/Data anlysis- working sheet/python/data/insurance_cost_final.csv')
+```
 
 
