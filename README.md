@@ -2,7 +2,15 @@
 
 dataset : https://www.kaggle.com/datasets/harlfoxem/housesalesprediction?resource=download&select=kc_house_data.csv
 
-![image](https://github.com/user-attachments/assets/d2a96a43-dd56-4037-baf0-a485ee8351b3)
+| Parameter |Description| Content type |
+|---|----|---|
+|age| Age in years| integer |
+|gender| Male or Female|integer (1 or 2)|
+| bmi | Body mass index | float |
+|no_of_children| Number of children | integer|
+|smoker| Whether smoker or not | integer (0 or 1)|
+|region| Which US region - NW, NE, SW, SE | integer (1,2,3 or 4 respectively)| 
+|charges| Annual Insurance charges in USD | float|
 
 # DATA PREPARE
 
@@ -161,6 +169,10 @@ df['BMI_nor'] = df['BMI']/ df['BMI'].max()
 df['Charges_nor'] = df['Charges']/ df['Charges'].max()
 ```
 ```
+# rounde value to nearest 2 decimal places
+df[['Age_nor','BMI_nor', 'Charges', 'Charges_nor']] = np.round(df[['Age_nor','BMI_nor', 'Charges', 'Charges_nor']],2)
+```
+```
 Age_bins =np.linspace(min(df['Age']), max(df['Age']),4)
 Age_labels = ['Young', ' Middle-age', 'Senior']
 df['Age_group'] = pd.cut(df['Age'], bins = Age_bins, labels=Age_labels, include_lowest = True)
@@ -178,11 +190,13 @@ print('BMI_bins:', BMI_bins)
 print('Charges_bins:', Charges_bins)
 df.head()
 ```
-![image](https://github.com/user-attachments/assets/c824077a-9eef-40e9-bc64-2f6d3a362867)
+![image](https://github.com/user-attachments/assets/ce973757-b237-411d-b2d0-77f8892190c6)
 
 ### save data for analysis and visualization
 ```
 df.to_csv('D:/Data anlysis- working sheet/python/data/insurance_cost_final.csv')
 ```
+
+
 
 
