@@ -269,3 +269,120 @@ Relationships Between Other Variables
 BMI and Region (0.271200) → There is a moderate correlation, possibly due to lifestyle or dietary differences across regions.
 Age and BMI (0.112859) → Age does not significantly influence BMI.
 Gender and Smoker (0.083125) → There is no major difference in smoking habits between genders.
+
+### Comparison of Insurance Charges Between Smokers, Age and BMI group
+```
+num_cols = ['Age_group', 'BMI_group', 'Smoker']
+for col in num_cols:
+    plt.figure(figsize=(8,6))
+    sns.boxplot(x=df[col], y=df['Charges'], palette='Set1')
+    plt.show()
+
+```
+![image](https://github.com/user-attachments/assets/463dcab0-6e48-454a-b484-598a04443494)
+![image](https://github.com/user-attachments/assets/3cc65adf-24c9-4161-afb1-06d23cc8f531)
+![image](https://github.com/user-attachments/assets/021fef99-e3b1-4871-a6bc-bf83f1dd19a8)
+
+Smoker vs. Charges
+Smokers have significantly higher insurance charges compared to non-smokers.
+The median insurance cost for smokers is much higher, with greater dispersion.
+There are many outliers in the non-smoker group, but their values are still considerably lower than those of smokers.
+
+Many outliers appear at the higher end of the cost distribution (above $20,000).
+Possible reasons: Some non-smokers might have severe health conditions or other risk factors driving up costs.
+However, even the highest non-smoker outliers are significantly lower than regular smoker costs.
+
+BMI Group vs. Charges
+The Overweight group has the highest average insurance costs and the largest spread.
+The Obese group tends to have lower costs compared to the Overweight group, possibly due to data distribution or other influencing factors.
+The remaining groups have relatively similar costs but still exhibit many outliers.
+
+These groups show a moderate number of outliers, mostly in the $30,000+ range.
+Potential reasons: Some individuals may have serious medical conditions despite a normal BMI, leading to higher costs.
+Overweight:
+
+This group has the widest spread of costs, including some extreme high-cost outliers above $60,000.
+The higher variation suggests that overweight individuals have a more unpredictable range of health risks.
+
+Obese:
+Surprisingly, the outliers in this group are fewer than in the overweight category.
+This could indicate that obese individuals may have more consistent health risks, leading to less variation in costs.
+
+Age Group vs. Charges
+The Senior group has higher insurance costs than the other groups.
+The Young group has the lowest insurance costs but contains many outliers.
+The Middle-age group has a higher spread compared to the Young group but lower than the Senior group.
+
+young Group:
+
+Many high-cost outliers, despite the overall lower median.
+Possible explanation: Some younger individuals might have chronic conditions or require expensive treatments.
+Middle-age Group:
+
+Outliers appear but are slightly less extreme than in the younger group.
+Insurance costs are increasing but still somewhat stable.
+Senior Group:
+
+Most seniors have high insurance costs, but outliers still exist, suggesting some individuals require extraordinary medical expenses beyond the usual age-related factors.
+Key Insight:
+Even though older individuals generally have higher costs, the young group has unexpected high-cost outliers, likely due to critical illnesses or accidents.
+
+
+Summary:
+Smoking has a strong impact on insurance costs, with significantly higher charges for smokers.
+BMI also influences costs, particularly with the Overweight group incurring higher expenses.
+Older age correlates with increased insurance costs, especially in the Senior group.
+
+The limitation of the dataset is that it does not provide explicit health data for further investigation. Therefore, we temporarily focus on Smoking, BMI, and Age to analyze their impact on insurance charges.
+
+
+###
+
+### verify whether age, BMI, or other factors contribute to outliers in the non-smoker group
+```
+# Filter non-smokers
+non_smoker_df = df[df["Smoker"] == 0]
+
+# Calculate IQR
+Q1 = non_smoker_df["Charges"].quantile(0.25)
+Q3 = non_smoker_df["Charges"].quantile(0.75)
+IQR = Q3 - Q1
+
+# Define outliers as values below Q1 - 1.5*IQR or above Q3 + 1.5*IQR
+outlier_threshold = (Q1 - 1.5 * IQR, Q3 + 1.5 * IQR)
+outliers = non_smoker_df[(non_smoker_df["Charges"] < outlier_threshold[0]) | 
+                          (non_smoker_df["Charges"] > outlier_threshold[1])]
+
+print(outliers)
+```
+![image](https://github.com/user-attachments/assets/e565c993-1386-4582-aecd-1e1017d33da3)
+
+### Scatter Plot of Age vs. Charges for Non-Smokers
+```
+plt.figure(figsize=(8,5))
+sns.scatterplot(data=non_smoker_df, x="Age", y="Charges", color="blue", alpha=0.6, label="Non-Outliers")
+sns.scatterplot(data=outliers, x="Age", y="Charges", color="red", label="Outliers")
+plt.title("Age vs. Charges (Non-Smokers)")
+plt.xlabel("Age")
+plt.ylabel("Charges")
+plt.legend()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/42457070-87dc-4d00-bce0-523d74ecd539)
+The scatter plot shows that older individuals generally have higher insurance charges. However, some individuals of varying ages exhibit abnormally high costs, suggesting the influence of additional factors such as BMI or medical history.
+
+### Scatter Plot of BMI vs. Charges for Non-Smokers
+```
+plt.figure(figsize=(8,5))
+sns.scatterplot(data=non_smoker_df, x="BMI", y="Charges", color="blue", alpha=0.6, label="Non-Outliers")
+sns.scatterplot(data=outliers, x="BMI", y="Charges", color="red", label="Outliers")
+plt.title("BMI vs. Charges (Non-Smokers)")
+plt.xlabel("BMI")
+plt.ylabel("Charges")
+plt.legend()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/77bab224-03bf-4298-a987-ced9ae748e94)
+The distribution of BMI and charges reveals that individuals with both normal and high BMI levels can have outlier charges.
+This suggests that BMI alone is not the primary reason for these outliers
+
