@@ -197,6 +197,75 @@ df.head()
 df.to_csv('D:/Data anlysis- working sheet/python/data/insurance_cost_final.csv')
 ```
 
+# DATA ANALYSIS
 
+### Descriptive Statistics
 
+Use visualizations to understand the distribution of key variables
+```
+num_cols = ['Age', 'BMI', 'Charges']
+for col in num_cols:
+    plt.figure(figsize=(6, 4)) 
+    sns.histplot(df[col], bins=20, kde=True)
+    plt.title(f"{col} Distribution")
+    plt.xlabel(col)
+    plt.ylabel("Count")
+    plt.show()
+```
+![image](https://github.com/user-attachments/assets/0d0bb9c2-99f5-4fd0-8d20-e5a9b0aef753)
+![image](https://github.com/user-attachments/assets/4c62afc4-6a6d-42f6-bf69-3541b6ea156b)
+![image](https://github.com/user-attachments/assets/f3e83eee-bbbf-4783-aa0d-dd2d5c6884a1)
 
+Age Distribution
+Ages range from 18 to about 65 years old.
+There is a large concentration at age 18, indicating many young customers in the dataset.
+The distribution is relatively even for other ages, with no particular age dominating except for 18-year-olds.
+Insight: There may be many students or young individuals in the insurance dataset.
+
+BMI Distribution
+The BMI follows a normal distribution, peaking around 27 - 30.
+Most customers have a BMI between 20 - 40, meaning they mostly fall into the normal weight or overweight categories.
+A small number of customers have a BMI above 45, which could indicate severe obesity.
+Insight: Focusing on high BMI groups could help assess its impact on insurance costs.
+
+Insurance Charges Distribution
+The distribution is right-skewed, with most customers paying under 15,000 in insurance costs.
+A small number of customers have very high costs (above 50,000 - 60,000), possibly due to health conditions like smoking or pre-existing diseases.
+This indicates a huge disparity in insurance costs among different customer groups.
+Insight: Further analysis is needed to examine factors like smoking (Smoker), BMI, or age that contribute to these high costs.
+
+Summary:
+Age: Many young customers (18 years old), while other ages are evenly distributed.
+BMI: Most customers have a BMI between 20 - 40, following a normal distribution.
+Insurance Costs: Significant disparity, with some customers paying extremely high fees.
+
+### Check Correlations Between Variables
+```
+numeric_df = df.select_dtypes(include=['float64', 'int64'])
+numeric_df.corr()
+```
+![image](https://github.com/user-attachments/assets/aa86edbb-e4ca-4777-a0d9-bd613287f2e0)
+
+This table represents the correlation coefficients between different variables in the dataset. The correlation ranges from -1 to 1:
+
+Close to 1 → Strong positive relationship (when one variable increases, the other also increases).
+Close to -1 → Strong negative relationship (when one variable increases, the other decreases).
+Close to 0 → No clear relationship.
+
+Factors Affecting Insurance Charges (Charges)
+Variables most correlated with Charges
+Smoker (0.789141) → Smoking has a very strong impact on insurance costs.
+Age (0.298892) → Older individuals tend to have higher insurance costs.
+BMI (0.199906) → BMI has a positive correlation, but its impact is not as significant as smoking or age.
+No_of_children (0.066551) → The number of children has very little effect on insurance costs.
+Gender (0.062959) and Region (0.054018) → Almost no impact on insurance costs.
+
+Conclusion:
+Smoking is the most significant factor influencing insurance costs.
+Age and BMI also affect the cost, but to a lesser extent.
+Gender, region, and the number of children have minimal impact on insurance charges.
+
+Relationships Between Other Variables
+BMI and Region (0.271200) → There is a moderate correlation, possibly due to lifestyle or dietary differences across regions.
+Age and BMI (0.112859) → Age does not significantly influence BMI.
+Gender and Smoker (0.083125) → There is no major difference in smoking habits between genders.
