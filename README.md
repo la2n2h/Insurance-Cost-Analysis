@@ -386,3 +386,121 @@ plt.show()
 The distribution of BMI and charges reveals that individuals with both normal and high BMI levels can have outlier charges.
 This suggests that BMI alone is not the primary reason for these outliers
 
+# MODEL DEVELOPMENT
+### Fit a linear regression model that may be used to predict the charges value, just by using the smoker attribute of the dataset. Print the 
+ score of this model.
+ ```
+# initialize a linear regression model,
+lm = LinearRegression()
+```
+```
+# create a linear function with 'smoker' as predictor variable and 'charges' as the response varialbe
+x = df[['Smoker']] # predictor variable
+y = df[['Charges']] # response variable
+lm.fit(x, y) #Fit the linear model using highway-mpg
+print(lm.score(x, y))
+```
+![image](https://github.com/user-attachments/assets/3490b055-0127-42f6-8232-d58195c7e9a0)
+Result: R² = 0.6227
+This means that the "Smoker" variable alone explains 62.27% of the variance in insurance costs. This is a relatively high explanatory power, indicating that smoking has a strong impact on insurance charges.
+
+```
+z = df[["Age", "Gender", "BMI", "No_of_children", "Smoker", "Region"]]
+lm.fit(z,y)
+print(lm.score(z, y))
+```
+![image](https://github.com/user-attachments/assets/b124df7c-e4a7-4f2f-81b3-1a1f370f4a58)
+Result: R² = 0.7506
+By adding more independent variables (Age, Gender, BMI, Number of Children, Smoker, Region), the model can now explain 75.06% of the variance in insurance charges.
+
+This indicates that, apart from smoking, BMI and age also play significant roles in determining insurance costs.
+However, the improvement from 62.27% → 75.06% suggests that smoking remains the most influential factor.
+
+### Create a training pipeline that uses StandardScaler(), PolynomialFeatures() and LinearRegression() to create a model that can predict the charges value using all the other attributes of the dataset
+```
+# y and z use the same values as defined in previous cells 
+Input=[('scale',StandardScaler()), ('polynomial', PolynomialFeatures(include_bias=False)), ('model', LinearRegression())]
+pipe=Pipeline(Input)
+z = z.astype(float)
+pipe.fit(z,y)
+ypipe=pipe.predict(z)
+print(r2_score(y,ypipe))
+```
+![image](https://github.com/user-attachments/assets/193fd2c5-812f-45d6-b799-231fce9474de)
+Result: R² = 0.8454
+When applying Polynomial Regression, the explanatory power increases to 84.54%.
+This suggests that the relationship between variables and insurance costs is not entirely linear, meaning that BMI or Age might have nonlinear effects on charges.
+Data standardization (StandardScaler()) also helps improve accuracy.
+
+### Scatter Plot vs Polynomial Regression Curve
+```
+columns = ['Age', 'BMI']
+for col in columns:
+    x = df[[col]]
+    y = df[['Charges']]
+
+    # Chuẩn hóa dữ liệu
+    scaler = StandardScaler()
+    x_scaled = scaler.fit_transform(x)
+
+    # Biến đổi thành đa thức
+    poly = PolynomialFeatures(degree=2)
+    x_poly = poly.fit_transform(x_scaled)
+
+    # Fit model
+    lm = LinearRegression()
+    lm.fit(x_poly, y)
+
+    # Dự báo
+    x_range = np.linspace(x.min(), x.max(), 100).reshape(-1, 1)
+    x_range_scaled = scaler.transform(x_range)
+    x_range_poly = poly.transform(x_range_scaled)
+    y_pred = lm.predict(x_range_poly)
+
+    # Vẽ biểu đồ
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x=df[col], y=df["Charges"], alpha=0.5, label="Actual Data")
+    plt.plot(x_range, y_pred, color='red', label="Polynomial Regression")
+    plt.xlabel(col)
+    plt.ylabel('Charge')
+    plt.legend()
+    plt.show()
+```
+![image](https://github.com/user-attachments/assets/7e8ba459-5d22-4f4b-968b-b68377ae2492)
+![image](https://github.com/user-attachments/assets/ccb32e13-5330-46bf-aea7-efb5eaafd137)
+
+### Comparision Actual vs Predicted Charges
+```
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y.values.ravel(), y=ypipe.ravel(), alpha=0.5)
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--')  # Đường 45 độ
+plt.xlabel("Actual Charges")
+plt.ylabel("Predicted Charges")
+plt.title("Actual vs Predicted Charges - Polynomial Regression")
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/86fce3cd-1f14-46b0-bc3f-b85ca243a852)
+
+# Model Refinement
+```
+# Z and Y hold same values as in previous cells
+x_train, x_test, y_train, y_test = train_test_split(Z, Y, test_size=0.2, random_state=1)
+
+# x_train, x_test, y_train, y_test hold same values as in previous cells
+RidgeModel=Ridge(alpha=0.1)
+RidgeModel.fit(x_train, y_train)
+yhat = RidgeModel.predict(x_test)
+print(r2_score(y_test,yhat))
+
+# x_train, x_test, y_train, y_test hold same values as in previous cells
+pr = PolynomialFeatures(degree=2)
+x_train_pr = pr.fit_transform(x_train)
+x_test_pr = pr.fit_transform(x_test)
+RidgeModel.fit(x_train_pr, y_train)
+y_hat = RidgeModel.predict(x_test_pr)
+print(r2_score(y_test,y_hat))
+```
+![image](https://github.com/user-attachments/assets/37369586-2f16-4b2d-bb0b-f6468fe63833)
+
+Ridge Regression (R² = 0.725): A decent linear model, but not optimal.
+Polynomial Ridge Regression (R² = 0.820): Adding polynomial features improved prediction accuracy.
